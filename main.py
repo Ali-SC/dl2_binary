@@ -11,7 +11,6 @@ from sklearn.utils import shuffle
 from sklearn.preprocessing import MinMaxScaler
 
 
-
 #%%  Generate Training Data
 train_labels = []
 train_samples = []
