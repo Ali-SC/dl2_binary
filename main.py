@@ -16,7 +16,6 @@ train_labels = []
 train_samples = []
 
 
-
 for i in range(50):
     # The ~5% of younger individuals who did experience side effects
     random_younger = randint(13,64)
