@@ -5,6 +5,9 @@ Created on Mon Mar 15 10:11:54 2021
 @author: ali.kadhim
 """
 
+# import os
+# os.environ["CUDA_VISIBLE_DEVICES"]="-1"
+
 import numpy as np
 from random import randint
 from sklearn.utils import shuffle
@@ -100,18 +103,33 @@ import os
 # logdir=mylogs:C:\path\to\output\folder
 # tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
 
-log_dir = "logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
+# log_dir = "logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+# tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
 
+# GPU
 model.fit(
     x=scaled_train_samples,
     y=train_labels,
     validation_split=0.1,
     batch_size=10,
-    epochs=30,
+    epochs=1000,
     shuffle=True,
-    verbose=2,
-    callbacks=[tensorboard_callback])
+    verbose=2)
+    # callbacks=[tensorboard_callback])
+
+# CPU
+# model.fit(
+#     x=scaled_train_samples,
+#     y=train_labels,
+#     validation_split=0.1,
+#     batch_size=10,
+#     epochs=1000,
+#     shuffle=True,
+#     verbose=2,
+#     # callbacks=[tensorboard_callback],
+#     workers=4,
+#     use_multiprocessing=True)
+
 
 assert model.history.history.get('accuracy')[-1] > 0.90
 assert model.history.history.get('val_accuracy')[-1] > 0.90
