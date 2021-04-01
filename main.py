@@ -5,6 +5,7 @@ Created on Mon Mar 15 10:11:54 2021
 @author: ali.kadhim
 """
 
+
 # import os
 # os.environ["CUDA_VISIBLE_DEVICES"]="-1"
 
@@ -12,7 +13,11 @@ import numpy as np
 from random import randint
 from sklearn.utils import shuffle
 from sklearn.preprocessing import MinMaxScaler
+import tensorflow as tf
 
+physical_devices = tf.config.experimental.list_physical_devices('GPU')
+print("Num GPUs Available: ", len(physical_devices))
+tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
 #%%  Generate Training Data
 train_labels = []
@@ -66,8 +71,7 @@ scaled_train_samples = scaler.fit_transform(train_samples.reshape(-1,1))
 
 #%% Simple tf.keras Sequential Model
 
-import tensorflow as tf
-from tensorflow import keras
+
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Activation, Dense
 from tensorflow.keras.optimizers import Adam
@@ -78,10 +82,10 @@ from tensorflow.keras.metrics import categorical_crossentropy
 #%% Set up model
 
 model = Sequential([
-    Dense(units=128, input_shape=(1,), activation='relu'),
-    Dense(units=4096, activation='relu'),
-    Dense(units=8192, activation='relu'),
-    Dense(units=2048, activation='relu'),
+    Dense(units=16, input_shape=(1,), activation='relu'),
+    # Dense(units=8, activation='relu'),
+    Dense(units=32, activation='relu'),
+    # Dense(units=2048, activation='relu'),
     Dense(units=2, activation='softmax')
     ])
 
@@ -97,7 +101,7 @@ model.compile(
 import datetime
 import os
 # log_dir = os.getcwd() + "\\logs\\fit\\"
-# # log_dir = "logs\fit"
+# log_dir = "logs\fit"
 # os.makedirs(log_dir)
 
 # tensorboard_callback = keras.callbacks.TensorBoard(log_dir='./Graph', histogram_freq=1)
@@ -105,10 +109,21 @@ import os
 # logdir=mylogs:C:\path\to\output\folder
 # tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
 
-# log_dir = "logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-# tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
+log_dir = "logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
 
 # GPU
+# model.fit(
+#     x=scaled_train_samples,
+#     y=train_labels,
+#     validation_split=0.1,
+#     batch_size=10,
+#     epochs=20,
+#     shuffle=True,
+#     verbose=2,
+#     callbacks=[tensorboard_callback])
+
+# CPU
 model.fit(
     x=scaled_train_samples,
     y=train_labels,
@@ -116,21 +131,10 @@ model.fit(
     batch_size=10,
     epochs=1000,
     shuffle=True,
-    verbose=2)
-    # callbacks=[tensorboard_callback])
-
-# CPU
-# model.fit(
-#     x=scaled_train_samples,
-#     y=train_labels,
-#     validation_split=0.1,
-#     batch_size=10,
-#     epochs=1000,
-#     shuffle=True,
-#     verbose=2,
-#     # callbacks=[tensorboard_callback],
-#     workers=4,
-#     use_multiprocessing=True)
+    verbose=2,
+    callbacks=[tensorboard_callback],
+    workers=4,
+    use_multiprocessing=True)
 
 
 assert model.history.history.get('accuracy')[-1] > 0.90
